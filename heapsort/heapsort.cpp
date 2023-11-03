@@ -33,6 +33,10 @@ void make(std::vector<int>& arr) {
 
 
 void heapsort(std::vector<int>& arr, std::vector<int>& output) {
+
+	make(arr);
+
+
 	while(arr.size() != 0) {
 		
 		output[arr.size()-1] = arr[0];
@@ -49,7 +53,6 @@ int main() {
 	std::vector<int> xs = {2, 15, 37, 141, 26, 13, 174};
 	std::vector<int> output(xs.size());
 	
-	make(xs);
 	heapsort(xs, output);
 
 	for(int i = 0; i < output.size(); ++i) {
