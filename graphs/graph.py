@@ -6,9 +6,7 @@ data = []
 
 with open('data.txt', 'r') as file:
 	for count, line in enumerate(file.readlines()):
-		if count % 2 == 0:
-			array_sizes.append(float(line))
-		else:
+			array_sizes.append(count)
 			data.append(float(line))
 
 x = np.array(array_sizes)
