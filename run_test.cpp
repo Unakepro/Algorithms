@@ -3,6 +3,8 @@
 #include <chrono>
 #include <vector>
 #include <fstream>
+#include <cassert>
+#include <algorithm>
 
 #include "insertion_sort/insertion_sort.hpp"
 #include "heapsort/heapsort.hpp"
@@ -34,7 +36,8 @@ void measuring_data(void (*sort)(int*, int)) {
 			auto start = std::chrono::steady_clock::now();
 			sort(arr, size);	
 			auto end = std::chrono::steady_clock::now();
-
+			
+			assert(std::is_sorted(arr, arr+size));
 			nanoseconds time = std::chrono::duration_cast<nanoseconds>(end - start);
 			total[size-1] += time;
 	
@@ -51,5 +54,5 @@ void measuring_data(void (*sort)(int*, int)) {
 
 
 int main() {
-	measuring_data(quicksort);
+	measuring_data(heapsort);
 }
