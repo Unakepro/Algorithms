@@ -5,52 +5,75 @@
 constexpr int decimal = 10;
 
 
-void counting_sort(int* arr, int size, int* tmp, int* count, int count_size, int k) {
+void counting_sort(int* arr, int size, int* output, int* pos, int pos_size, int k) {
 
-	memcpy(tmp, arr, size*sizeof(arr[0]));
-	memset(count, 0, count_size*sizeof(count[0]));		
+	memset(pos, 0, pos_size*sizeof(pos[0]));		
 
 	for(int incr_elem = 0; incr_elem < size; ++incr_elem) {
-		count[arr[incr_elem]/k%10] += 1;
+		pos[arr[incr_elem]/k%10] += 1;
 	}
 	
-	for(int add_elem = 0; add_elem < count_size; ++add_elem) {
-		count[add_elem] += count[add_elem-1];
+	for(int i=0;i<10;++i) {
+		std::cout << pos[i] << ' ';
+	}
+	
+	std::cout << '\n';
+
+	for(int add_elem = 0; add_elem < pos_size; ++add_elem) {
+		pos[add_elem] += pos[add_elem-1];
 	}
 
-	for(int i = size-1; i >= 0; --i) {
-		arr[count[tmp[i]/k%10]-1] = tmp[i];
-		--count[tmp[i]/k%10]; 
-	}
+	for(int i = size-1; i >= 0; --i) {		
+
+		--pos[arr[i]/k%10];
+		output[pos[arr[i]/k%10]] = arr[i]; 
+
+	}	
 }
 
 
 
 int main() {
-	int arr[] = {1020, 1250, 3, 14, 250, 700, 20, 23, 10, 21, 29, 1, 2, 2};
+	int* arr = new int[8]; 	
 
-	int size = sizeof(arr)/sizeof(arr[0]);
+	arr[0] = 250;
+	arr[1] = 700;
+	arr[2] = 20;
+	arr[3] = 23;
+	arr[4] = 10;
+	arr[5] = 21;
+	arr[6] = 29;
+	arr[7] = 2;
 
-	int* copy_arr = new int[size];	
-	int* count = new int[decimal];
+
+	int size = 8;
+
+	int* output = new int[size];	
+	int* pos = new int[decimal];
+
 
 		
 	int max_elem = *(std::max_element(arr, arr+size));
 	int div = 1;
 	
 	while(max_elem != 0) {	
-		counting_sort(arr, size, copy_arr, count, decimal, div);
+		counting_sort(arr, size, output, pos, decimal, div);
+	
+		std::swap(arr, output);
+		
+
 		div *= 10;
 		max_elem /= 10;	
 	}
 
-	for(int i=0;i<size;++i) {
-		std::cout << arr[i] << std::endl;
+	for(int i = 0;i < size; ++i) {
+		std::cout << arr[i] << ' ';	
 	}
 
-
-	delete [] copy_arr;
-	delete [] count;
+	
+	delete [] arr;
+	delete [] output;
+	delete [] pos;
 	
 
 	return 0;
