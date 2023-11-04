@@ -1,10 +1,12 @@
 #include <iostream>
-#include "insertion_sort/insertion_sort.hpp"
 #include <random>
 #include <chrono>
 #include <vector>
 #include <fstream>
 
+#include "insertion_sort/insertion_sort.hpp"
+#include "heapsort/heapsort.hpp"
+#include "quicksort/quicksort.hpp"
 
 using std::chrono::nanoseconds;
 
@@ -40,9 +42,8 @@ void measuring_data(void (*sort)(int*, int)) {
 		}
 
 	}
-
 	for(int size = 1; size < max_size; ++size) {
-		file << total[size-1].count() << '\n'; 
+		file << total[size-1].count() / max_repetition << '\n'; 
 	}
 	file.close();
 }
@@ -50,5 +51,5 @@ void measuring_data(void (*sort)(int*, int)) {
 
 
 int main() {
-	measuring_data(insertion_sort);
+	measuring_data(quicksort);
 }
