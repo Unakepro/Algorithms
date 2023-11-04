@@ -1,5 +1,9 @@
 #include <iostream>
 #include <vector>
+#include <random>
+
+std::random_device rd_q;
+std::mt19937 gen_q(rd_q());
 
 
 void quicksort(int* arr, int size) {
@@ -8,8 +12,10 @@ void quicksort(int* arr, int size) {
 
 		int l = 1;
 		int r = size-1;
-	
-		std::swap(arr[0], arr[size/2]);
+
+
+		std::uniform_int_distribution<int> dist_q(0, size-1);	
+		std::swap(arr[0], arr[dist_q(gen_q)]);
 		int start_elem = arr[0];	
 		
 		while(l <= r) {

@@ -11,7 +11,7 @@
 using std::chrono::nanoseconds;
 
 constexpr int max_size = 8000;
-constexpr int max_repetition = 1;
+constexpr int max_repetition = 10;
 
 std::random_device rd;
 std::mt19937 gen(rd());
