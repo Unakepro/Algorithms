@@ -1,3 +1,6 @@
+#ifndef RADIXSORT
+#define RADIXSORT
+
 #include <iostream>
 #include <algorithm>
 #include <cstring>
@@ -25,6 +28,8 @@ void counting_sort(int* arr, int size, int* output, int* pos, int pos_size, int 
 	}	
 }
 
+
+
 void radixsort(int* arr, int size) {
 	
 	int* output = new int[size];	
@@ -51,18 +56,4 @@ void radixsort(int* arr, int size) {
 
 
 
-int main() {
-	int arr[] = {0, 0, 0, 0, 1, 0}; 	
-
-	int size = sizeof(arr)/sizeof(arr[0]);
-
-	radixsort(arr, size);
-	
-	for(int i = 0; i < size; ++i) {
-		std::cout << arr[i] << ' ';
-	}
- 
-
-
-	return 0;
-}
+#endif

@@ -9,11 +9,12 @@
 #include "insertion_sort/insertion_sort.hpp"
 #include "heapsort/heapsort.hpp"
 #include "quicksort/quicksort.hpp"
+#include "radixsort/radixsort.hpp"
 
 using std::chrono::nanoseconds;
 
 constexpr int max_size = 8000;
-constexpr int max_repetition = 10;
+constexpr int max_repetition = 1;
 
 std::random_device rd;
 std::mt19937 gen(rd());
@@ -25,7 +26,7 @@ void measuring_data(void (*sort)(int*, int)) {
 
 	for(int count=0; count < max_repetition; ++count) {
 		for(int size = 1; size < max_size; ++size) {
-			std::uniform_int_distribution<int> dist(-size, size);
+			std::uniform_int_distribution<int> dist(0, 10);
 			
 			int* arr = new int[size];
 			for(unsigned i = 0; i < size; ++i) {
@@ -54,5 +55,5 @@ void measuring_data(void (*sort)(int*, int)) {
 
 
 int main() {
-	measuring_data(heapsort);
+	measuring_data(radixsort);
 }
