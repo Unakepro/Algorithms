@@ -13,8 +13,8 @@
 
 using std::chrono::nanoseconds;
 
-constexpr int max_size = 8000;
-constexpr int max_repetition = 1;
+constexpr int max_size = 1001;
+constexpr int max_repetition = 10;
 
 std::random_device rd;
 std::mt19937 gen(rd());
@@ -22,11 +22,11 @@ std::mt19937 gen(rd());
 void measuring_data(void (*sort)(int*, int)) {
 	std::vector<nanoseconds> total(max_size);
 
-	std::ofstream file("graphs/data.txt");
+	std::ofstream file("graphs/data.txt", std::ios_base::app);
 
 	for(int count=0; count < max_repetition; ++count) {
 		for(int size = 1; size < max_size; ++size) {
-			std::uniform_int_distribution<int> dist(0, 10);
+			std::uniform_int_distribution<int> dist(0, size);
 			
 			int* arr = new int[size];
 			for(unsigned i = 0; i < size; ++i) {
@@ -55,5 +55,7 @@ void measuring_data(void (*sort)(int*, int)) {
 
 
 int main() {
+	measuring_data(quicksort);
+	measuring_data(heapsort);
 	measuring_data(radixsort);
 }
