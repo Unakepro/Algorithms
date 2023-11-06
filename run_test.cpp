@@ -13,49 +13,73 @@
 
 using std::chrono::nanoseconds;
 
-constexpr int max_size = 1001;
-constexpr int max_repetition = 10;
+constexpr int max_size = 10000;
+constexpr int max_repetition = 1;
 
 std::random_device rd;
 std::mt19937 gen(rd());
 
-void measuring_data(void (*sort)(int*, int)) {
-	std::vector<nanoseconds> total(max_size);
 
-	std::ofstream file("graphs/data.txt", std::ios_base::app);
+void generate_data(int* arr, int size) {
+	std::uniform_int_distribution<int> dist(-size, size);	
+	for(unsigned i = 0; i < size; ++i) {
+		arr[i] = dist(gen);
+	}
 
-	for(int count=0; count < max_repetition; ++count) {
-		for(int size = 1; size < max_size; ++size) {
-			std::uniform_int_distribution<int> dist(0, size);
-			
-			int* arr = new int[size];
-			for(unsigned i = 0; i < size; ++i) {
-				arr[i] = dist(gen);
-			}
-			std::cout << size << '\n';
+}
 
-			auto start = std::chrono::steady_clock::now();
-			sort(arr, size);	
-			auto end = std::chrono::steady_clock::now();
-			
-			assert(std::is_sorted(arr, arr+size));
-			nanoseconds time = std::chrono::duration_cast<nanoseconds>(end - start);
-			total[size-1] += time;
+
+nanoseconds test_on_array(int* arr, int size, void(*sort)(int*, int)) {
 	
+	int* copy = new int[size];
+	std::copy(arr, arr+size, copy);
+	
+	auto start = std::chrono::steady_clock::now();
+	sort(copy, size);	
+	auto end = std::chrono::steady_clock::now();
+			
+	assert(std::is_sorted(copy, copy+size));
+	nanoseconds time = std::chrono::duration_cast<nanoseconds>(end - start);
+
+	delete [] copy;
+
+	return time;
+}
+
+long double get_data(nanoseconds obj) {
+	return obj.count() / max_repetition;
+} 
+
+int main() {
+	std::ofstream file("graphs/data.txt");
+	file << "size insertion heapsort quicksort radixsort" << std::endl;
+
+	std::vector<nanoseconds> total(4);
+	for(int size = 100; size <= max_size; size += 100) {
+
+
+		for(int count = 0; count < max_repetition; ++count) {
+			int* arr = new int[size];
+		
+			generate_data(arr, size);		
+			
+			total[0] += test_on_array(arr, size, insertion_sort);
+			total[1] += test_on_array(arr, size, heapsort);
+			total[2] += test_on_array(arr, size, quicksort);
+			total[3] += test_on_array(arr, size, radixsort);
+				
 			delete [] arr;
 		}
 
-	}
-	for(int size = 1; size < max_size; ++size) {
-		file << total[size-1].count() / max_repetition << '\n'; 
-	}
+		file << size << ' ' << get_data(total[0]) <<  ' '  << get_data(total[1]) <<  ' ' << get_data(total[2]) << ' ' <<
+		get_data(total[3]) << '\n';
+
+		std::cout << "Current size: " << size << std::endl;
+		std::fill(total.begin(), total.end(), nanoseconds(0));
+	}	
+		
 	file.close();
+	
 }
 
 
-
-int main() {
-	measuring_data(quicksort);
-	measuring_data(heapsort);
-	measuring_data(radixsort);
-}
