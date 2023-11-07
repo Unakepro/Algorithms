@@ -1,22 +1,22 @@
-#ifndef RADIXSORT
-#define RADIXSORT
+#ifndef RADIXSORT_P
+#define RADIXSORT_P
 
 #include <iostream>
 #include <algorithm>
 #include <cmath>
 #include <climits>
 
-constexpr int decimal = 10;
+constexpr int decimal_p = 10;
 
-void counting_sort(int* arr, int size, int* output, int k) {
+void counting_sort_p(int* arr, int size, int* output, int k) {
 
-    int pos[decimal] = {};
+    int pos[decimal_p] = {};
 
     for(int incr_elem = 0; incr_elem < size; ++incr_elem) {
         pos[arr[incr_elem]/k%10] += 1;
     }
 
-    for(int add_elem = 1; add_elem < decimal; ++add_elem) {
+    for(int add_elem = 1; add_elem < decimal_p; ++add_elem) {
         pos[add_elem] += pos[add_elem-1];
     }
 
@@ -33,7 +33,7 @@ void counting_sort(int* arr, int size, int* output, int k) {
 
 
 
-void radixsort(int* arr, int size) {
+void radixsort_p(int* arr, int size) {
 
     int* output = new int[size];
 
@@ -41,7 +41,7 @@ void radixsort(int* arr, int size) {
 
     int div = 1;
     while(max_elem > 0) {
-        counting_sort(arr, size, output, div);
+        counting_sort_p(arr, size, output, div);
 
         div *= 10;
         max_elem /= 10;
