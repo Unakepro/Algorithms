@@ -10,11 +10,12 @@
 #include "heapsort/heapsort.hpp"
 #include "quicksort/quicksort.hpp"
 #include "radixsort/radixsort.hpp"
+#include "radixsort/radixsort_positive.hpp"
 
 using std::chrono::nanoseconds;
 
 constexpr int max_size = 10000;
-constexpr int max_repetition = 1;
+constexpr int max_repetition = 100;
 
 std::random_device rd;
 std::mt19937 gen(rd());
@@ -26,6 +27,12 @@ void generate_data(int* arr, int size) {
 		arr[i] = dist(gen);
 	}
 
+}
+
+void generate_sorted_data(int *arr, int size) {
+	for(unsigned i = 0; i < size; ++i) {
+		arr[i] = i;
+	}
 }
 
 
@@ -58,11 +65,11 @@ int main() {
 	for(int size = 100; size <= max_size; size += 100) {
 
 
-		for(int count = 0; count < max_repetition; ++count) {
+		for(int count = 1; count < max_repetition; count += 1) {
 			int* arr = new int[size];
 		
 			generate_data(arr, size);		
-			
+			//generate_sorted_data(arr, size);	
 			total[0] += test_on_array(arr, size, insertion_sort);
 			total[1] += test_on_array(arr, size, heapsort);
 			total[2] += test_on_array(arr, size, quicksort);
