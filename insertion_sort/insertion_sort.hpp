@@ -4,19 +4,17 @@
 #include <iostream>
 #include <algorithm>
 
-void insertion_sort(int* arr, int size) {
-	for(int i = 0; i < size; ++i) {
-		for(int j = i-1; j >= 0; --j) {
-			if(arr[j] > arr[j+1]) {
-				std::swap(arr[j], arr[j+1]);
-			}
-			else {
-				break;
-			}
-		}	
+void insertion_sort(int *arr, int len) {
+	for (int i = 1 ; i < len ; i++) {
+		int val = arr[i];
+		int cur = i;
+		while ((cur > 0) && arr[cur - 1] > val ) {
+				arr[cur] = arr[cur - 1];
+				cur--;
+		}
+		arr[cur] = val;
 	}
 }
-
 
 
 
