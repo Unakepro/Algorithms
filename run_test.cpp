@@ -11,11 +11,12 @@
 #include "quicksort/quicksort.hpp"
 #include "radixsort/radixsort.hpp"
 #include "radixsort/radixsort_positive.hpp"
+#include "hybridsort/hybridsort.hpp"
 
 using std::chrono::nanoseconds;
 
-constexpr int max_size = 10000;
-constexpr int max_repetition = 100;
+constexpr int max_size = 300;
+constexpr int max_repetition = 10000;
 
 std::random_device rd;
 std::mt19937 gen(rd());
@@ -59,10 +60,10 @@ long double get_data(nanoseconds obj) {
 
 int main() {
 	std::ofstream file("graphs/data.txt");
-	file << "size insertion heapsort quicksort radixsort" << std::endl;
+	file << "size insertion heapsort quicksort radixsort hybridsort" << std::endl;
 
-	std::vector<nanoseconds> total(4);
-	for(int size = 100; size <= max_size; size += 100) {
+	std::vector<nanoseconds> total(5);
+	for(int size = 10; size <= max_size; size += 10) {
 
 
 		for(int count = 1; count < max_repetition; count += 1) {
@@ -70,16 +71,22 @@ int main() {
 		
 			generate_data(arr, size);		
 			//generate_sorted_data(arr, size);	
-			total[0] += test_on_array(arr, size, insertion_sort);
+		
+			if(size < 1001) {
+				total[0] += test_on_array(arr, size, insertion_sort);
+			}
+			
 			total[1] += test_on_array(arr, size, heapsort);
 			total[2] += test_on_array(arr, size, quicksort);
 			total[3] += test_on_array(arr, size, radixsort);
-				
+			total[4] += test_on_array(arr, size, hybridsort);
+
+
+		
 			delete [] arr;
 		}
+		file << size << ' ' << get_data(total[0]) <<  ' '  << get_data(total[1]) <<  ' ' << get_data(total[2]) << ' ' << get_data(total[3]) << ' ' << get_data(total[4])  << '\n'; 
 
-		file << size << ' ' << get_data(total[0]) <<  ' '  << get_data(total[1]) <<  ' ' << get_data(total[2]) << ' ' <<
-		get_data(total[3]) << '\n';
 
 		std::cout << "Current size: " << size << std::endl;
 		std::fill(total.begin(), total.end(), nanoseconds(0));
