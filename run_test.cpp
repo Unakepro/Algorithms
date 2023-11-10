@@ -88,6 +88,7 @@ int main() {
 		file << size << ' ' << get_data(total[0]) <<  ' '  << get_data(total[1]) <<  ' ' << get_data(total[2]) << ' ' << get_data(total[3]) << ' ' << get_data(total[4])  << '\n'; 
 
 
+
 		std::cout << "Current size: " << size << std::endl;
 		std::fill(total.begin(), total.end(), nanoseconds(0));
 	}	

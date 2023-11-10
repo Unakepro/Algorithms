@@ -24,7 +24,6 @@ with open('data.txt', 'r') as file:
 
 
 x = np.array(array_sizes)
-x_i = np.array(array_sizes[0:1])
 
 y_i = np.array(insertion_time)
 y_h = np.array(heapsort_time) 
@@ -44,6 +43,6 @@ plt.xlabel("size of array")
 plt.ylabel("time taken")
 
 plt.legend()
-#plt.savefig('sorted.png')
+plt.savefig('small.png')
 
 plt.show()
