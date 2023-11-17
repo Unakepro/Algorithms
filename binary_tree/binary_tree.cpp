@@ -10,7 +10,7 @@ void delete_node(Node* root) {
 	if(root != nullptr) {	
 		delete_node(root->left);
 		delete_node(root->right);
-		delete [] root;
+		delete root;
 	}
 }
 
