@@ -16,9 +16,9 @@ void delete_node(Node* root) {
 
 
 struct Tree {
-	Node* root = nullptr;
+	Node* root = nullptr;	
 	
-	
+
 	void insert(int v) {
 		Node* ptr = root;
 		Node* parent = nullptr;
@@ -68,11 +68,20 @@ struct Tree {
 
 		return false;
 	}
-
-	void print(Node* root) {
-				
-
+	
+	void print(Node* root, int count = 0) {
+		if(root != nullptr) {
+			count = count+5;
+			print(root->right, count);
+			
+			for(int i = 0; i < count; ++i) {
+				std::cout << ' ';
+			}
+			std::cout << root->value << std::endl;
+			print(root->left, count);
+		}
 	}
+
 	~Tree() {
 		delete_node(root);
 	}
@@ -83,21 +92,21 @@ struct Tree {
 
 int main() { 
 	Tree tr1;
-	for(int i=0;i<150;i+=10) {
-		tr1.insert(i);
-	} 
-	for(int i=15;i>0;--i) {
-		tr1.insert(i);
-	} 
 
+	tr1.insert(8);
 	
-	tr1.print(tr1.root);	
-		
+	tr1.insert(4);
+	tr1.insert(12);
+	
+	tr1.insert(2);
+	tr1.insert(6);
+	tr1.insert(10);	
+	tr1.insert(14);	
 	//for(int i=0;i<15;++i) {
 	//	std::cout << tr1.search(i) << '\n';
 	//}
 	//for(int i=15;i>0;--i) {
 	//	std::cout << tr1.search(i) << '\n';
 	//}
-
+	tr1.print(tr1.root);
 }
