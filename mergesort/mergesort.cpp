@@ -60,26 +60,19 @@ void mergesort(int* arr, int size) {
 
         merge(arr, size-half_size, arr+(size-half_size), half_size);
     }
-	else {
-	
-		assert(std::is_sorted(arr, arr+(size-half_size)));
-		assert(std::is_sorted(arr+(size-half_size), arr+size));	
-	
-        merge(arr, size-half_size, arr+(size-half_size), half_size);
-	}
 }
 
 
 
 int main() {
 	
-	int arr1[] = {0, 7,-3, 15, 8, 1,2,3,2,3,5};
+	int arr1[] = {};
 	
     int size = sizeof(arr1) / sizeof(arr1[0]);
     mergesort(arr1, size);	
 
 	for(int i=0;i<size;++i) {
-		std::cout << arr1[i];
+		std::cout << arr1[i] << ' ';
 	}
 
 	assert(std::is_sorted(arr1, arr1+size));

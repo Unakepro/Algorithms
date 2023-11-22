@@ -63,13 +63,6 @@ void mergesort(int* arr, int size) {
 
         merge(arr, size-size/2, arr+(size-size/2), size/2);
     }
-	else {
-	
-		assert(std::is_sorted(arr, arr+(size-size/2)));
-		assert(std::is_sorted(arr+(size-size/2), arr+size));	
-	
-        merge(arr, size-size/2, arr+(size-size/2), size/2);
-	}
 }
 
 
