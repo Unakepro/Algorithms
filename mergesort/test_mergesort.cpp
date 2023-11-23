@@ -4,8 +4,9 @@
 #include <chrono>
 #include <vector>
 #include <fstream>
+#include <cassert>
 
-constexpr int max_size = 16000;
+constexpr int max_size = 5000;
 constexpr int max_repetition = 1; 
 
 int main() {
@@ -30,6 +31,9 @@ int main() {
 			auto start = std::chrono::steady_clock::now();
 			mergesort(arr, size);
 			auto end = std::chrono::steady_clock::now();
+			
+			assert(std::is_sorted(arr, arr+size));
+			std::cout << size << '\n';
 
 			nanoseconds time = std::chrono::duration_cast<nanoseconds>(end - start);
 			total[size] += time;
