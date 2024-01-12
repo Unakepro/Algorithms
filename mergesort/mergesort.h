@@ -10,7 +10,7 @@
 
 
 void merge(int* left, int size_l, const int* right, int size_r) {
-	int l = 0;
+    int l = 0;
     int r = 0;
     int i = 0;
 
