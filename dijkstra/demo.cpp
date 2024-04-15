@@ -11,24 +11,29 @@ std::vector<int> dijkstra_search(const std::vector<std::vector<int>>& matrix) {
     visited_nodes[start_node] = 0;
 
 
+    std::pair<size_t, int> next_line{0, -1};
     for(size_t i = 0; i < matrix.size()-1; ++i) {
         // set start value
-        std::pair<size_t, int> next_line{};
 
         for(size_t j = 0; j < matrix.size(); ++j) {
-            if(shortest_path[j] > 0 && shortest_path[j] < next_line.second && visited_nodes[j] == -1) {
+            if(visited_nodes[j] == -1 && shortest_path[j] > 0 && (next_line.second == -1 || shortest_path[j] < next_line.second)) {
                 next_line.first = j;
                 next_line.second = shortest_path[j];
-                visited_nodes[j] = 0;
             } 
+            //std::cout << next_line.second << ' ';
         }        
-
+        //std::cout << "\n\n";
+        
+        visited_nodes[next_line.first] = 0;
         for(size_t elem_id = 0; elem_id < matrix.size(); ++elem_id) {
             if(matrix[next_line.first][elem_id] > 0 && matrix[next_line.first][elem_id] + next_line.second < shortest_path[elem_id]) {
                 shortest_path[elem_id] = next_line.second + matrix[next_line.first][elem_id];
             }
+            if(matrix[next_line.first][elem_id] > 0 && elem_id != start_node && shortest_path[elem_id] == 0) {
+                shortest_path[elem_id] = next_line.second + matrix[next_line.first][elem_id];
+            }
         }
-
+        next_line.second = -1;
     }
     
 
@@ -40,39 +45,21 @@ std::vector<int> dijkstra_search(const std::vector<std::vector<int>>& matrix) {
 
 
 
-
-
-
-void put_elem(std::vector<int>& obj, size_t num) {
-    int number;
-    for(size_t i = 0; i < num; ++i) {    
-        std::cin >> number; 
-        obj.push_back(number);
-    }
-}
  
 
 
 int main() {
     std::vector<std::vector<int>> adj_matrix;
 
-    // size_t n_rows;
-
-    // std::cout << "Enter number of rows" << '\n';
-    // std::cin >> n_rows;
-    
-    // std::vector<int> line;
-    // for(size_t i = 0; i < n_rows; ++i) {
-    //     put_elem(line, n_rows);
-    //     adj_matrix.push_back(std::move(line));
-    // }
-
-    adj_matrix.push_back(std::vector<int>{0, 7, 5, 2, 0, 0});
-    adj_matrix.push_back(std::vector<int>{7, 0, 0, 0, 3, 0});
-    adj_matrix.push_back(std::vector<int>{5, 0, 0, 10, 4, 0});
-    adj_matrix.push_back(std::vector<int>{2, 0, 10, 0, 0, 2});
-    adj_matrix.push_back(std::vector<int>{0, 3, 4, 0, 0, 6});
-    adj_matrix.push_back(std::vector<int>{0, 8, 0, 2, 6, 0});
+    adj_matrix.push_back(std::vector<int>{ 0, 4, 0, 0, 0, 0, 0, 8, 0 });
+    adj_matrix.push_back(std::vector<int>{ 4, 0, 8, 0, 0, 0, 0, 11, 0 });
+    adj_matrix.push_back(std::vector<int>{ 0, 8, 0, 7, 0, 4, 0, 0, 2 });
+    adj_matrix.push_back(std::vector<int>{ 0, 0, 7, 0, 9, 14, 0, 0, 0 });
+    adj_matrix.push_back(std::vector<int>{ 0, 0, 0, 9, 0, 10, 0, 0, 0 });
+    adj_matrix.push_back(std::vector<int>{ 0, 0, 4, 14, 10, 0, 2, 0, 0 }); 
+    adj_matrix.push_back(std::vector<int>{ 0, 0, 0, 0, 0, 2, 0, 1, 6 });
+    adj_matrix.push_back(std::vector<int> { 8, 11, 0, 0, 0, 0, 1, 0, 7 });
+    adj_matrix.push_back(std::vector<int> { 0, 0, 2, 0, 0, 0, 6, 7, 0 } );
 
 
     for(auto line: adj_matrix) {
