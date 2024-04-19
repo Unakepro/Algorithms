@@ -19,6 +19,22 @@ public:
         return blocked;
     }
 
+    void setF(size_t f) {
+        f_cost = f;
+    }
+
+
+    bool operator==(const Square<side>& obj) const {
+        return center.first == obj.center.first && center.second == obj.center.second;
+    }
+
+    bool operator<(const Square<side>& obj) const {
+        return f_cost < obj.f_cost;
+    }
+
+    bool operator>(const Square<side>& obj) const {
+        return obj < *this;
+    }
 
 
     // std::pair<double, double> get_lu_point() {
@@ -202,23 +218,19 @@ void a_search(const Area<square_size>& obj, std::pair<size_t, size_t> start_squa
 
     size_t start_index = start_square.second * start_square.first + start_square.first;
 
-    //visited[start_index] = 1;
-    //path.push_back(obj.getSquare(start_square.first, start_square.second));
 
     while(true) {
-        //auto current = path.front().getCenter();
-        const Square<square_size>& successor;
+        auto current = open_list.dequeue();
+        closed_list.push_back(current);
+
+        if(current == end_square) {
+            return ;
+        }
+
+        for(auto square: obj.getNeighbors()) {
+
         
-        // if(obj.SquareExist(successor)) {
-        //     if(obj dest) {
-        //         we add it to path and break;
-        //     }
-        //     else {
-        //         computer g+h;
-                
-        //     }
-        // }
-        
+        }   
         
 
     }
@@ -228,4 +240,7 @@ void a_search(const Area<square_size>& obj, std::pair<size_t, size_t> start_squa
 
 int main() {
     Area<1> xs(5, 4);
+
+    Square<1> one(std::pair<double, double>(1, 2));
+    Square<1> two(std::pair<double, double>(1, 1));
 }
