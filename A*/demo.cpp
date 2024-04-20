@@ -1,15 +1,24 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <set>
+#include <cmath>
+#include <chrono>
+#include <thread>
+
+std::chrono::milliseconds timespan(1000); // or whatever
 
 template <size_t side>
 class Square {
     std::pair<double, double> center;
+    std::pair<size_t, size_t> gf_cost{0, 0};
     bool blocked = 0;
-    size_t f_cost = 0;
+    
+    Square* parent = nullptr;
+
 
 public:
-    Square(std::pair<double, double> center, bool isBlocked = 0): center(center), blocked(blocked), f_cost(0) {}
+    Square(std::pair<double, double> center, bool isBlocked = 0): center(center), blocked(blocked) {}
 
     std::pair<double, double> getCenter() const {
         return center;
@@ -19,59 +28,34 @@ public:
         return blocked;
     }
 
-    void setF(size_t f) {
-        f_cost = f;
+    void setParent(Square* ptr) {
+        parent = ptr;
     }
 
+    void setF(size_t h) {
+        gf_cost.second = gf_cost.first + h;
+    }
+    
+    void setG(size_t g) {
+        gf_cost.first = g;
+    }
+
+    Square<side>* getParent() {
+        return parent;
+    }
+
+    size_t getG() {
+        return gf_cost.first;
+    }
+
+    size_t getF() {
+        return gf_cost.second;
+    }
 
     bool operator==(const Square<side>& obj) const {
         return center.first == obj.center.first && center.second == obj.center.second;
     }
 
-    bool operator<(const Square<side>& obj) const {
-        return f_cost < obj.f_cost;
-    }
-
-    bool operator>(const Square<side>& obj) const {
-        return obj < *this;
-    }
-
-
-    // std::pair<double, double> get_lu_point() {
-    //     std::pair<double, double> lu_side;
-        
-    //     lu_side.first = center.first - side/2.0;
-    //     lu_side.second = center.second + side/2.0;
-
-    //     return lu_side;
-    // }
-
-    // std::pair<double, double> get_ru_point() {
-    //     std::pair<double, double> ru_side;
-        
-    //     ru_side.first = center.first + side/2.0;
-    //     ru_side.second = center.second + side/2.0;
-
-    //     return ru_side;
-    // }
-    
-    // std::pair<double, double> get_ld_point() {
-    //     std::pair<double, double> ld_side;
-        
-    //     ld_side.first = center.first - side/2.0;
-    //     ld_side.second = center.second - side/2.0;
-
-    //     return ld_side;
-    // }
-
-    // std::pair<double, double> get_rd_point() {
-    //     std::pair<double, double> rd_side;
-        
-    //     rd_side.first = center.first + side/2.0;
-    //     rd_side.second = center.second - side/2.0;
-
-    //     return rd_side;
-    // }
 };
 
 template <size_t square_side>
@@ -97,8 +81,8 @@ public:
         return height;
     }
     
-    const Square<square_side>& getSquare(size_t i, size_t j) const {
-        return values[j * width + i];
+    Square<square_side>* getSquare(size_t i, size_t j) {
+        return &values[j * width + i];
     }
     
 
@@ -110,39 +94,39 @@ public:
     }
 
 
-    void add_neighbor(std::vector<Square<square_side>&>& square_values, const std::pair<double, double>& position) {
-        if(SquareExist(position) && !(getSquare(position).isBlocked())) {
-            square_values.push_back(getSquare(position));
+    void add_neighbor(std::vector<Square<square_side>*>& square_values, const std::pair<double, double>& position) {
+        if(SquareExist(position) && !(getSquare(position.first, position.second)->isBlocked())) {
+            square_values.push_back(getSquare(position.first, position.second));
         }
     }
 
 
-    std::vector<Square<square_side>&> getNeighbors() {
-        std::vector<Square<square_side>&> square_values(8);
+    std::vector<Square<square_side>*> getNeighbors(const Square<square_side>& current) {
+        std::vector<Square<square_side>*> square_values;
         std::pair<double, double> neighbor;
         
-        neighbor = getUpperCenter();
+        neighbor = getUpperCenter(current);
         add_neighbor(square_values, neighbor);
 
-        neighbor = getUpperRightCenter();
+        neighbor = getUpperRightCenter(current);
         add_neighbor(square_values, neighbor);
 
-        neighbor = getRightCenter();
+        neighbor = getRightCenter(current);
         add_neighbor(square_values, neighbor);
 
-        neighbor = getBottomRightCenter();
+        neighbor = getBottomRightCenter(current);
         add_neighbor(square_values, neighbor);
 
-        neighbor = getBottomCenter();
+        neighbor = getBottomCenter(current);
         add_neighbor(square_values, neighbor);
    
-        neighbor = getBottomLeftCenter();
+        neighbor = getBottomLeftCenter(current);
         add_neighbor(square_values, neighbor);
 
-        neighbor = getLeftCenter();
+        neighbor = getLeftCenter(current);
         add_neighbor(square_values, neighbor);
 
-        neighbor = getUpperLeftCenter();
+        neighbor = getUpperLeftCenter(current);
         add_neighbor(square_values, neighbor);
 
 
@@ -201,12 +185,30 @@ public:
 };
 
 template <size_t square_size>
-void a_search(const Area<square_size>& obj, std::pair<size_t, size_t> start_square, std::pair<size_t, size_t> end_square) {
-    
-    
-    std::priority_queue<Square<square_size>&, std::greater<Square<square_size>&>> open_list;
-    std::vector<const Square<square_size>&> closed_list;
+size_t manhattan_distance(const Square<square_size>& obj1, const Square<square_size>& obj2) {
+    return std::abs(obj1.getCenter().first - obj2.getCenter().first) + std::abs(obj1.getCenter().second - obj2.getCenter().second);
+}
 
+
+template <size_t square_size>
+size_t distance(const Square<square_size>& obj1, const Square<square_size>& obj2) {
+    return std::sqrt(std::pow(obj1.getCenter().first - obj1.getCenter().first, 2) + std::pow(obj2.getCenter().second - obj1.getCenter().second, 2));
+}
+
+
+template <size_t square_size>
+class Compare {
+    public:
+        bool operator()(Square<square_size>* obj1, Square<square_size>* obj2) {
+            return obj1->getF() < obj2->getF();
+        }
+};
+
+template <size_t square_size>
+Square<square_size>* a_search(Area<square_size>& obj, std::pair<size_t, size_t> start_square, std::pair<size_t, size_t> end_square) {
+    
+    std::priority_queue<Square<square_size>*, std::vector<Square<square_size>*>, Compare<square_size>> open_list;
+    std::set<Square<square_size>*> closed_list;
 
     if(start_square.first > obj.getWidth() || end_square.first > obj.getWidth()) {
         throw std::logic_error("Wrong width!");
@@ -216,31 +218,74 @@ void a_search(const Area<square_size>& obj, std::pair<size_t, size_t> start_squa
         throw std::logic_error("Wrong height!");
     }
 
-    size_t start_index = start_square.second * start_square.first + start_square.first;
-
+    open_list.push(obj.getSquare(start_square.first, start_square.second));
 
     while(true) {
-        auto current = open_list.dequeue();
-        closed_list.push_back(current);
+        auto* current = open_list.top();
+        open_list.pop();
+        closed_list.insert(current);
 
-        if(current == end_square) {
-            return ;
+        if(current == obj.getSquare(end_square.first, end_square.second)) {
+            return current;
         }
 
-        for(auto square: obj.getNeighbors()) {
-
         
-        }   
-        
+        for(auto* square: obj.getNeighbors(*current)) {            
+ 
+            bool inOpen = square->getF();
+                
+            size_t h = distance(*square, *obj.getSquare(end_square.first, end_square.second)) + square->getG();
+            size_t g = current->getG() + distance(*current, *square);
+            
+            // search not optimal
+            if(closed_list.find(square) != closed_list.end()) {
+                continue;
+            }
 
-    }
+
+            if(h+g < square->getF() || !inOpen) {
+                
+                square->setG(g);
+                square->setF(h);
+
+                square->setParent(current);
+                if(!inOpen) {
+                    open_list.push(square);
+                }
+            }
+        
+            //std::this_thread::sleep_for(timespan);
+
+        }
+
+
+   }   
+        
 }
+
+
 
 
 
 int main() {
     Area<1> xs(5, 4);
 
-    Square<1> one(std::pair<double, double>(1, 2));
-    Square<1> two(std::pair<double, double>(1, 1));
-}
+    std::pair<size_t, size_t> start{0, 0};
+    std::pair<size_t, size_t> end{2, 2};
+
+    //std::cout << xs.getSquare(start.first, start.second);
+
+    // for(auto* square: xs.getNeighbors(*xs.getSquare(start.first, start.second))) {
+    //     std::cout << square << ' ';
+    // }
+
+    Square<1>* result = a_search<1>(xs, start, end);
+
+    while(result != 0) {
+        std::cout << result->getCenter().first << ' ' << result->getCenter().second;
+        result = result->getParent();
+        std::cout << '\n';
+
+
+    }
+} 
