@@ -4,10 +4,6 @@
 #include <set>
 #include <unordered_set>
 #include <cmath>
-#include <chrono>
-#include <thread>
-
-std::chrono::milliseconds timespan(1000); // or whatever
 
 template <size_t side>
 class Square {
@@ -28,6 +24,15 @@ public:
     bool isBlocked() const {
         return blocked;
     }
+
+    void Block() {
+        blocked = 1;
+    }
+
+    void Unlock() {
+        blocked = 0;
+    }
+    
 
     void setParent(Square* ptr) {
         parent = ptr;
@@ -95,6 +100,17 @@ public:
         if(center.first < square_side/2.0 || center.first > width*square_side-square_side/2.0 || center.second < square_side/2.0 || center.second > height*square_side-square_side/2.0) {
             return 0;
         }
+        return 1;
+    }
+
+    bool SquareExist(Square<square_side>* obj) const {
+        std::pair<double, double> center;
+
+        center = obj->getCenter();
+        if(center.first < square_side/2.0 || center.first > width*square_side-square_side/2.0 || center.second < square_side/2.0 || center.second > height*square_side-square_side/2.0) {
+            return 0;
+        }
+        
         return 1;
     }
 
@@ -172,21 +188,6 @@ public:
         return std::pair<double, double>(obj.getCenter().first-square_side, obj.getCenter().second+square_side);
     }
 
-
-    void print_points() {
-        for(int64_t i = height-1; i >= 0; --i) {
-            for(size_t j = 0; j < width; ++j) {
-                std::cout << " (" << values[i*width+j].get_lu_point().first << " ; " << values[i*width+j].get_lu_point().second << ") "; 
-                std::cout << " (" << values[i*width+j].get_ru_point().first << " ; " << values[i*width+j].get_ru_point().second << ") "; 
-                std::cout << " (" << values[i*width+j].get_ld_point().first << " ; " << values[i*width+j].get_ld_point().second << ") "; 
-                std::cout << " (" << values[i*width+j].get_rd_point().first << " ; " << values[i*width+j].get_rd_point().second << ") "; 
-
-            }
-            std::cout << "\n";
-        }
-    }
-
-
 };
 
 template <size_t square_size>
@@ -200,6 +201,19 @@ size_t distance(const Square<square_size>& obj1, const Square<square_size>& obj2
     return std::sqrt(std::pow((obj2.getCenter().first - obj1.getCenter().first), 2) + std::pow((obj2.getCenter().second - obj1.getCenter().second), 2));
 }
 
+template <size_t square_size>
+size_t calculate_gcost(const Square<square_size>& current, const Square<square_size>& neighbor) {
+    size_t dx = std::abs(current.getCenter().first - neighbor.getCenter().first);
+    size_t dy = std::abs(current.getCenter().second - neighbor.getCenter().second);
+
+    if(dx != 0 && dy != 0) {
+        return std::sqrt(std::pow(dx, 2) + std::pow(dy, 2));
+    }
+    else {
+        return dx+dy;
+    }    
+}
+
 
 template <size_t square_size>
 class Compare {
@@ -210,27 +224,28 @@ class Compare {
 };
 
 template <size_t square_size>
-Square<square_size>* a_search(Area<square_size>& obj, std::pair<size_t, size_t> start_square, std::pair<size_t, size_t> end_square) {
+Square<square_size>* a_search(Area<square_size>& obj, Square<square_size>* start_square, Square<square_size>* end_square) {
     
     std::priority_queue<Square<square_size>*, std::vector<Square<square_size>*>, Compare<square_size>> open_list;
     std::unordered_set<Square<square_size>*> closed_list;
 
-    if(start_square.first > obj.getWidth() || end_square.first > obj.getWidth()) {
-        throw std::logic_error("Wrong width!");
+
+    if(!obj.SquareExist(start_square)) {
+        throw std::logic_error("Wrong start!");
     }
 
-    if(start_square.first > obj.getHeight() || end_square.first > obj.getHeight()) {
-        throw std::logic_error("Wrong height!");
+    if(!obj.SquareExist(end_square)) {
+        throw std::logic_error("Wrong end!");
     }
 
-    open_list.push(obj.getSquare(start_square.first, start_square.second));
+    open_list.push(start_square);
 
-    while(true) {
+    while(!open_list.empty()) {
         auto* current = open_list.top();
         open_list.pop();
         closed_list.insert(current);
 
-        if(current == obj.getSquare(end_square.first, end_square.second)) {
+        if(current == end_square) {
             return current;
         }
 
@@ -239,8 +254,8 @@ Square<square_size>* a_search(Area<square_size>& obj, std::pair<size_t, size_t> 
  
             bool inOpen = square->getF();
                 
-            size_t h = distance(*square, *obj.getSquare(end_square.first, end_square.second));       
-            size_t g = current->getG() + square_size;
+            size_t h = manhattan_distance(*square, *end_square);       
+            size_t g = current->getG() + calculate_gcost(*current, *square);
             
             if(closed_list.find(square) != closed_list.end()) {
                 continue;
@@ -260,31 +275,28 @@ Square<square_size>* a_search(Area<square_size>& obj, std::pair<size_t, size_t> 
         
 
         }
-
-
-   }   
-        
+    }   
+    return nullptr;
 }
 
-
-
-
+// distance
 
 int main() {
-    Area<2> xs(7, 4);
+    Area<2> xs(5, 8);
 
-    std::pair<size_t, size_t> start{1, 2};
-    std::pair<size_t, size_t> end{4, 0};
+    auto* start = xs.getSquare(0, 0);
+    auto* end = xs.getSquare(0, 7);
 
-    //std::cout << xs.getSquare(start.first, start.second);
+    xs.getSquare(0, 5)->Block();
+    xs.getSquare(1, 5)->Block();
 
-    // for(auto* square: xs.getNeighbors(*xs.getSquare(start.first, start.second))) {
-    //     std::cout << square << ' ';
-    // }
+    xs.getSquare(1, 1)->Block();
+    xs.getSquare(1, 2)->Block();
+    xs.getSquare(1, 3)->Block();
 
     Square<2>* result = a_search<2>(xs, start, end);
 
-    while(result != 0) {
+    while(result) {
         std::cout << result->getCenter().first << ' ' << result->getCenter().second;
         result = result->getParent();
         std::cout << '\n';
